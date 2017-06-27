@@ -2,8 +2,13 @@
     <% if ( type !== 'checkbox' ) { %>
         <label for="<%= form %>-<%= name %>">
             <span class="label-text"><%= label %></span>
-            <% if ( required && requiredStr && (type !== 'hidden') ) { %><span class="label-required"><%= requiredStr %></span><% } %>
-            <% if ( !required && optionalStr && (type !== 'hidden') ) { %><span class="label-optional"><%= optionalStr %></span><% } %>
+            <% if ( required && requiredStr && (type !== 'hidden') ) { %>
+            <span id="" class="label-required"><%= requiredStr %></span>
+            <% } %>
+            <% if ( !required && optionalStr && (type !== 'hidden') ) { %>
+            <span id="" class="label-optional"><%= optionalStr %></span>
+            <% } %>
+            <span class="icon fa" id="<%= form %>-<%= name %>-validation-icon" aria-hidden="true"></span>
         </label>
         <% if (supplementalLink && supplementalText) { %>
             <div class="supplemental-link">
@@ -29,6 +34,7 @@
             <option value="<%= el.value%>"<% if ( el.default ) { %> data-isdefault="true" selected<% } %>><%= el.name %></option>
         <% }); %>
         </select>
+        <span class="tip error" id="<%= form %>-<%= name %>-validation-error"></span>
         <% if ( instructions ) { %> <span class="tip tip-input" id="<%= form %>-<%= name %>-desc"><%= instructions %></span><% } %>
         <% if (supplementalLink && supplementalText) { %>
             <div class="supplemental-link">
@@ -51,6 +57,7 @@
             <%  });
             } %>
             <% if ( required ) { %> aria-required="true" required<% } %> ></textarea>
+            <span class="tip error" id="<%= form %>-<%= name %>-validation-error"></span>
             <% if ( instructions ) { %> <span class="tip tip-input" id="<%= form %>-<%= name %>-desc"><%= instructions %></span><% } %>
             <% if (supplementalLink && supplementalText) { %>
                 <div class="supplemental-link">
@@ -84,10 +91,16 @@
         <% if ( type === 'checkbox' ) { %>
             <label for="<%= form %>-<%= name %>">
                 <span class="label-text"><%= label %></span>
-                <% if ( required && requiredStr ) { %><span class="label-required"><%= requiredStr %></span><% } %>
-                <% if ( !required && optionalStr ) { %><span class="label-optional"><%= optionalStr %></span><% } %>
+                <% if ( required && requiredStr ) { %>
+                <span id="" class="label-required"><%= requiredStr %></span>
+                <% } %>
+                <% if ( !required && optionalStr ) { %>
+                <span id="" class="label-optional"><%= optionalStr %></span>
+                <% } %>
+                <span class="icon fa" id="<%= form %>-<%= name %>-validation-icon" aria-hidden="true"></span>
             </label>
         <% } %>
+        <span class="tip error" id="<%= form %>-<%= name %>-validation-error"></span>
         <% if ( instructions ) { %> <span class="tip tip-input" id="<%= form %>-<%= name %>-desc"><%= instructions %></span><% } %>
     <% } %>
 

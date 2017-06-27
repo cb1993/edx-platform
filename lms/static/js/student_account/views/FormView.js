@@ -201,24 +201,20 @@
                 renderErrors: function(title, errorMessages) {
                     this.clearFormErrors();
 
-                    this.renderFormFeedback(this.formErrorsTpl, {
-                        jsHook: this.formErrorsJsHook,
-                        title: title,
-                        messagesHtml: HtmlUtils.HTML(errorMessages.join(''))
-                    });
+                    if (this.errors.length) {
+                        this.renderFormFeedback(this.formErrorsTpl, {
+                            jsHook: this.formErrorsJsHook,
+                            title: title,
+                            messagesHtml: HtmlUtils.HTML(errorMessages.join(''))
+                        });
+                    } else {
+                        $(this.el).find(this.formErrorsJsHook).remove();
+                    }
                 },
 
                 renderFormFeedback: function(template, context) {
                     var tpl = HtmlUtils.template(template);
                     HtmlUtils.prepend(this.$formFeedback, tpl(context));
-
-                // Scroll to feedback container
-                    $('html,body').animate({
-                        scrollTop: this.$formFeedback.offset().top
-                    }, 'slow');
-
-                // Focus on the feedback container to ensure screen readers see the messages.
-                    this.$formFeedback.focus();
                 },
 
             /* Allows extended views to add non-form attributes
@@ -244,6 +240,14 @@
                         this.clearFormErrors();
                     } else {
                         this.renderErrors(this.defaultFormErrorsTitle, this.errors);
+
+                    // Scroll to feedback container
+                        $('html,body').animate({
+                            scrollTop: this.$formFeedback.offset().top
+                        }, 'slow');
+
+                    // Focus on the feedback container to ensure screen readers see the messages.
+                        this.$formFeedback.focus();
                         this.toggleDisableButton(false);
                     }
 
@@ -285,6 +289,18 @@
 
                 validate: function($el) {
                     return EdxUtilsValidate.validate($el);
+                },
+
+                liveValidate: function(event, url, dataType, data, method, model) {
+                    $.ajax({
+                        url: url,
+                        dataType: dataType,
+                        data: data,
+                        method: method,
+                        success: function(response) {
+                            model.trigger('validation', event.currentTarget, response);
+                        }
+                    });
                 }
             });
         });
