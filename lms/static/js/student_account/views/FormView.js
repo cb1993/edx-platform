@@ -6,9 +6,9 @@
         'backbone',
         'common/js/utils/edx.utils.validate',
         'edx-ui-toolkit/js/utils/html-utils',
+        'edx-ui-toolkit/js/utils/string-utils',
         'text!templates/student_account/form_errors.underscore'
-    ],
-        function($, _, Backbone, EdxUtilsValidate, HtmlUtils, formErrorsTpl) {
+    ], function($, _, Backbone, EdxUtilsValidate, HtmlUtils, StringUtils, formErrorsTpl) {
             return Backbone.View.extend({
                 tagName: 'form',
 
@@ -190,7 +190,13 @@
                 },
 
                 saveError: function(error) {
-                    this.errors = ['<li>' + error.responseText + '</li>'];
+                    this.errors = [
+                        StringUtils.interpolate(
+                            '<li>{error}</li>', {
+                                error: error.responseText
+                            }
+                        )
+                    ];
                     this.renderErrors(this.defaultFormErrorsTitle, this.errors);
                     this.toggleDisableButton(false);
                 },
@@ -201,14 +207,12 @@
                 renderErrors: function(title, errorMessages) {
                     this.clearFormErrors();
 
-                    if (errorMessages.length) {
+                    if (title || errorMessages.length) {
                         this.renderFormFeedback(this.formErrorsTpl, {
                             jsHook: this.formErrorsJsHook,
                             title: title,
                             messagesHtml: HtmlUtils.HTML(errorMessages.join(''))
                         });
-                    } else {
-                        $(this.el).find(this.formErrorsJsHook).remove();
                     }
                 },
 
