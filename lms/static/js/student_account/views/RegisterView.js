@@ -14,9 +14,10 @@
                 events: {
                     'click .js-register': 'submitForm',
                     'click .login-provider': 'thirdPartyAuth',
-                    'blur #register-email': 'liveValidate',
-                    'blur #register-username': 'liveValidate',
-                    'blur #register-password': 'liveValidate',
+                    'blur input[name=username]': 'liveValidate',
+                    'blur input[name=password]': 'liveValidate',
+                    'blur input[name=email]': 'liveValidate',
+                    'blur input[name=confirm_email]': 'validateConfirmationEmail',
                     'focus input[required]': 'renderRequiredMessage'
                 },
                 formType: 'register',
@@ -245,6 +246,19 @@
                         },
                         method = 'POST';
                     FormView.prototype.liveValidate(event, url, dataType, data, method, this.model);
+                },
+
+                validateConfirmationEmail: function(event) {
+                    var validation_decisions = {validation_decisions: {confirm_email: ''}},
+                        decisions = validation_decisions.validation_decisions,
+                        $email = this.$form.find('input[name=email]'),
+                        $confirmationEmail = $(event.currentTarget);
+
+                    if ($email.val() !== $confirmationEmail.val()) {
+                        decisions.confirm_email = gettext('Emails do not match.');
+                    }
+
+                    this.renderLiveValidations(event.currentTarget, validation_decisions);
                 }
             });
         });
