@@ -201,7 +201,7 @@
                 renderErrors: function(title, errorMessages) {
                     this.clearFormErrors();
 
-                    if (this.errors.length) {
+                    if (errorMessages.length) {
                         this.renderFormFeedback(this.formErrorsTpl, {
                             jsHook: this.formErrorsJsHook,
                             title: title,

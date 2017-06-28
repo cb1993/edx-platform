@@ -17,14 +17,13 @@
                     'blur #register-email': 'liveValidate',
                     'blur #register-username': 'liveValidate',
                     'blur #register-password': 'liveValidate',
-                    'focus input[required]': 'renderRequiredMessage' // the message should be hidden, but turned on by this.
+                    'focus input[required]': 'renderRequiredMessage'
                 },
                 formType: 'register',
                 formStatusTpl: formStatusTpl,
                 authWarningJsHook: 'js-auth-warning',
                 defaultFormErrorsTitle: gettext('We couldn\'t create your account.'),
                 submitButton: '.js-register',
-                requiredStr: gettext('(required)'),
 
                 preRender: function(data) {
                     this.providers = data.thirdPartyAuth.providers || [];
@@ -76,6 +75,18 @@
                     return this;
                 },
 
+                renderRequiredMessage: function(event) {
+                    var name = $(event.currentTarget).attr('id'),
+                        $label = $('#' + name + '-required-label');
+                    $label.removeClass('hidden').text(gettext('(required)'));
+                },
+
+                hideRequiredMessage: function($el) {
+                    var name = $el.attr('id'),
+                        $label = $('#' + name + '-required-label');
+                    $label.addClass('hidden');
+                },
+
                 renderLiveValidations: function(target, decisions) {
                     // TODO: Clean out the mess below?
                     var $el = $(target),
@@ -90,7 +101,7 @@
 
                         // Update the error message in the container.
                         this.cleanErrorMessage(errorId);
-                        this.errors.push('<li id="' + errorId +'">' + error + '</li>');
+                        this.errors.push('<li id="' + errorId + '">' + error + '</li>');
                         this.renderErrors(this.defaultFormErrorsTitle, this.errors);
                     } else {
                         this.renderLiveValidationSuccess($el, $label, $icon, $errorTip);
@@ -111,14 +122,16 @@
                 },
 
                 renderLiveValidationSuccess: function($el, $label, $icon, $tip) {
+                    var self = this;
                     $el.removeClass('error').addClass('success');
                     $label.removeClass('error').addClass('success');
                     $icon.removeClass('fa-times error').addClass('fa-check success');
                     $tip.text('');
 
+                    this.hideRequiredMessage($el);
+
                     // Hide success indicators after some time.
-                    var self = this;
-                    setTimeout(function() { self.cleanLiveValidationSuccess($el, $label, $icon) },
+                    setTimeout(function() { self.cleanLiveValidationSuccess($el, $label, $icon); },
                         10000
                     );
                 },
@@ -130,7 +143,8 @@
                 },
 
                 cleanErrorMessage: function(id) {
-                    for (var i = 0; i < this.errors.length; ++i) {
+                    var i;
+                    for (i = 0; i < this.errors.length; ++i) {
                         if (this.errors[i].includes(id)) {
                             this.errors.splice(i, 1);
                         }

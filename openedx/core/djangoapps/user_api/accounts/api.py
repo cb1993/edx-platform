@@ -34,7 +34,7 @@ from . import (
     EMAIL_BAD_LENGTH_MSG, PASSWORD_BAD_LENGTH_MSG, USERNAME_BAD_LENGTH_MSG,
     EMAIL_BAD_TYPE_MSG, PASSWORD_BAD_TYPE_MSG, USERNAME_BAD_TYPE_MSG,
     EMAIL_CONFLICT_MSG, USERNAME_CONFLICT_MSG,
-    EMAIL_INVALID_MSG, USERNAME_INVALID_MSG,
+    EMAIL_INVALID_MSG,
     EMAIL_MIN_LENGTH, PASSWORD_MIN_LENGTH, USERNAME_MIN_LENGTH,
     EMAIL_MAX_LENGTH, PASSWORD_MAX_LENGTH, USERNAME_MAX_LENGTH,
     PASSWORD_CANT_EQUAL_USERNAME_MSG
@@ -532,13 +532,7 @@ def _validate_username(username):
     try:
         _validate_unicode(username)
         _validate_type(username, basestring, USERNAME_BAD_TYPE_MSG)
-        _validate_length(
-            username, USERNAME_MIN_LENGTH, USERNAME_MAX_LENGTH, USERNAME_BAD_LENGTH_MSG.format(
-                username=username,
-                min=USERNAME_MIN_LENGTH,
-                max=USERNAME_MAX_LENGTH
-            )
-        )
+        _validate_length(username, USERNAME_MIN_LENGTH, USERNAME_MAX_LENGTH, USERNAME_BAD_LENGTH_MSG)
         with override_language('en'):
             # `validate_username` provides a proper localized message, however the API needs only the English
             # message by convention.
@@ -563,13 +557,7 @@ def _validate_email(email):
     try:
         _validate_unicode(email)
         _validate_type(email, basestring, EMAIL_BAD_TYPE_MSG)
-        _validate_length(
-            email, EMAIL_MIN_LENGTH, EMAIL_MAX_LENGTH, EMAIL_BAD_LENGTH_MSG.format(
-                email=email,
-                min=EMAIL_MIN_LENGTH,
-                max=EMAIL_MAX_LENGTH
-            )
-        )
+        _validate_length(email, EMAIL_MIN_LENGTH, EMAIL_MAX_LENGTH, EMAIL_BAD_LENGTH_MSG)
         validate_email.message = EMAIL_INVALID_MSG.format(email=email)
         validate_email(email)
     except (UnicodeError, AccountDataBadType, AccountDataBadLength, ValidationError) as invalid_email_err:
@@ -595,12 +583,7 @@ def _validate_password(password, username=None):
     """
     try:
         _validate_type(password, basestring, PASSWORD_BAD_TYPE_MSG)
-        _validate_length(
-            password, PASSWORD_MIN_LENGTH, PASSWORD_MAX_LENGTH, PASSWORD_BAD_LENGTH_MSG.format(
-                min=PASSWORD_MIN_LENGTH,
-                max=PASSWORD_MAX_LENGTH
-            )
-        )
+        _validate_length(password, PASSWORD_MIN_LENGTH, PASSWORD_MAX_LENGTH, PASSWORD_BAD_LENGTH_MSG)
         _validate_password_works_with_username(password, username)
     except (AccountDataBadType, AccountDataBadLength) as invalid_password_err:
         raise AccountPasswordInvalid(invalid_password_err.message)
@@ -686,6 +669,6 @@ def _validate_unicode(data, err=u"Input not valid unicode"):
         if not isinstance(data, str) and not isinstance(data, unicode):
             raise UnicodeError
         # In some cases we pass the above, but it's still inappropriate utf-8.
-        str(data)
+        unicode(data)
     except UnicodeError:
         raise UnicodeError(err)

@@ -397,7 +397,7 @@
             display: block;
         }
 
-        .error {
+        .error, .label-required {
             color: $red;
         }
         /** FROM _accounts.scss - end **/

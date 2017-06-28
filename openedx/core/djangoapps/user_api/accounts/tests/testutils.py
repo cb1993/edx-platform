@@ -52,6 +52,13 @@ INVALID_PASSWORDS = [
     u'a' * (PASSWORD_MAX_LENGTH + 1)
 ]
 
+VALID_USERNAMES_UNICODE = [
+    u'Enchanté',
+    u'username_with_@',
+    u'username with spaces',
+    u'eastern_arabic_numbers_١٢٣',
+]
+
 VALID_USERNAMES = [
     u'username',
     u'a' * USERNAME_MIN_LENGTH,

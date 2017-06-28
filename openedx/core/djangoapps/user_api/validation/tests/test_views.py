@@ -12,7 +12,7 @@ from django.core.urlresolvers import reverse
 
 from openedx.core.djangoapps.user_api.accounts import (
     EMAIL_BAD_LENGTH_MSG, EMAIL_INVALID_MSG,
-    EMAIL_CONFLICT_MSG, EMAIL_MAX_LENGTH, EMAIL_MIN_LENGTH,
+    EMAIL_CONFLICT_MSG, EMAIL_MAX_LENGTH,
     PASSWORD_BAD_LENGTH_MSG, PASSWORD_CANT_EQUAL_USERNAME_MSG,
     PASSWORD_MAX_LENGTH, PASSWORD_MIN_LENGTH,
     USERNAME_BAD_LENGTH_MSG, USERNAME_INVALID_CHARS_ASCII, USERNAME_INVALID_CHARS_UNICODE,
@@ -110,7 +110,7 @@ class RegistrationValidationViewTests(test_utils.ApiTestCase):
     def test_email_less_than_min_length_validation_decision(self, email):
         self.assertValidationDecision(
             {'email': email},
-            {'email': EMAIL_BAD_LENGTH_MSG.format(email=email, min=EMAIL_MIN_LENGTH, max=EMAIL_MAX_LENGTH)}
+            {'email': EMAIL_BAD_LENGTH_MSG}
         )
 
     def test_email_generically_invalid_validation_decision(self):
@@ -127,18 +127,11 @@ class RegistrationValidationViewTests(test_utils.ApiTestCase):
     def test_username_less_than_min_length_validation_decision(self, username):
         self.assertValidationDecision(
             {'username': username},
-            {
-                'username': USERNAME_BAD_LENGTH_MSG.format(
-                    username=username,
-                    min=USERNAME_MIN_LENGTH,
-                    max=USERNAME_MAX_LENGTH
-                )
-            }
+            {'username': USERNAME_BAD_LENGTH_MSG}
         )
 
     @unittest.skipUnless(settings.FEATURES.get("ENABLE_UNICODE_USERNAME"), "Unicode usernames disabled.")
     @ddt.data(*INVALID_USERNAMES_UNICODE)
-    @ddt.unpack
     def test_username_invalid_unicode_validation_decision(self, username):
         self.assertValidationDecision(
             {'username': username},
@@ -147,7 +140,6 @@ class RegistrationValidationViewTests(test_utils.ApiTestCase):
 
     @unittest.skipIf(settings.FEATURES.get("ENABLE_UNICODE_USERNAME"), "Unicode usernames enabled.")
     @ddt.data(*INVALID_USERNAMES_ASCII)
-    @ddt.unpack
     def test_username_invalid_ascii_validation_decision(self, username):
         self.assertValidationDecision(
             {'username': username},
@@ -161,7 +153,7 @@ class RegistrationValidationViewTests(test_utils.ApiTestCase):
     def test_password_less_than_min_length_validation_decision(self, password):
         self.assertValidationDecision(
             {'password': password},
-            {"password": PASSWORD_BAD_LENGTH_MSG.format(min=PASSWORD_MIN_LENGTH, max=PASSWORD_MAX_LENGTH)}
+            {"password": PASSWORD_BAD_LENGTH_MSG}
         )
 
     def test_password_equals_username_validation_decision(self):
