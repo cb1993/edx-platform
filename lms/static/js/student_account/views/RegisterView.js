@@ -19,12 +19,18 @@
             events: {
                 'click .js-register': 'submitForm',
                 'click .login-provider': 'thirdPartyAuth',
-                'blur input[name=username]': 'liveValidate',
-                'blur input[name=password]': 'liveValidate',
-                'blur input[name=email]': 'liveValidate',
-                'blur input[name=confirm_email]': 'validateConfirmationEmail',
-                'focus input[required]': 'renderRequiredMessage'
+                'blur input[name=username]': 'liveValidateHandler',
+                'blur input[name=password]': 'liveValidateHandler',
+                'blur input[name=email]': 'liveValidateHandler',
+                'blur input[name=confirm_email]': 'liveValidateHandler',
+                'focus input[required]': 'handleRequiredMessageEvent'
             },
+            liveValidationFields: [
+                'username',
+                'password',
+                'email',
+                'confirm_email'
+            ],
             formType: 'register',
             formStatusTpl: formStatusTpl,
             authWarningJsHook: 'js-auth-warning',
@@ -81,8 +87,12 @@
                 return this;
             },
 
-            renderRequiredMessage: function(event) {
-                var name = $(event.currentTarget).attr('id'),
+            handleRequiredMessageEvent: function(event) {
+                this.renderRequiredMessage($(event.currentTarget));
+            },
+
+            renderRequiredMessage: function($el) {
+                var name = $el.attr('id'),
                     $label = $('#' + name + '-required-label');
                 $label.removeClass('hidden').text(gettext('(required)'));
             },
@@ -93,33 +103,27 @@
                 $label.addClass('hidden');
             },
 
-            renderLiveValidations: function(target, decisions) {
-                // TODO: Clean out the mess below?
-                var $el = $(target),
-                    $label = this.$form.find('label[for=' + $el.attr('id') + ']'),
-                    $icon = $('#' + $el.attr('id') + '-validation-icon'),
-                    $errorTip = $('#' + $el.attr('id') + '-validation-error'),
+            renderLiveValidations: function($el, decisions) {
+                var elId = $el.attr('id'),
+                    $label = this.$form.find('label[for=' + elId + ']'),
+                    $icon = $('#' + elId + '-validation-icon'),
+                    $errorTip = $('#' + elId + '-validation-error'),
                     error = decisions.validation_decisions[$el.attr('name')],
-                    errorId = $el.attr('id') + '-validation-error-container';
+                    errorId = elId + '-validation-error-container';
 
                 if (error) {
                     this.renderLiveValidationError($el, $label, $icon, $errorTip, error);
 
                     // Update the error message in the container.
-                    this.cleanErrorMessage(errorId);
-                    this.errors.push(StringUtils.interpolate(
-                        '<li id="{errorId}">{error}</li>', {
-                            errorId: errorId,
-                            error: error
-                        }
-                    ));
+                    this.deleteError(errorId);
+                    this.addError(error, errorId);
                     this.renderErrors(this.defaultFormErrorsTitle, this.errors);
                 } else {
                     this.renderLiveValidationSuccess($el, $label, $icon, $errorTip);
 
                     // If an error for this field exists in the container, erase it.
                     if ($('#' + errorId).length) {
-                        this.cleanErrorMessage(errorId);
+                        this.deleteError(errorId);
                         // Pass empty title if no errors, so we don't display the error box.
                         this.renderErrors(this.errors.length ? this.defaultFormErrorsTitle : '', this.errors);
                     }
@@ -127,17 +131,19 @@
             },
 
             renderLiveValidationError: function($el, $label, $icon, $tip, error) {
-                $el.removeClass('success').addClass('error');
-                $label.removeClass('success').addClass('error');
-                $icon.removeClass('fa-check success').addClass('fa-times error');
+                this.cleanLiveValidationSuccess($el, $label, $icon);
+                $el.addClass('error');
+                $label.addClass('error');
+                $icon.addClass('fa-times error');
                 $tip.text(error);
             },
 
             renderLiveValidationSuccess: function($el, $label, $icon, $tip) {
                 var self = this;
-                $el.removeClass('error').addClass('success');
-                $label.removeClass('error').addClass('success');
-                $icon.removeClass('fa-times error').addClass('fa-check success');
+                this.cleanLiveValidationError($el, $label, $icon);
+                $el.addClass('success');
+                $label.addClass('success');
+                $icon.addClass('fa-check success');
                 $tip.text('');
 
                 this.hideRequiredMessage($el);
@@ -148,19 +154,16 @@
                 );
             },
 
+            cleanLiveValidationError: function($el, $label, $icon) {
+                $el.removeClass('error');
+                $label.removeClass('error');
+                $icon.removeClass('fa-times error');
+            },
+
             cleanLiveValidationSuccess: function($el, $label, $icon) {
                 $el.removeClass('success');
                 $label.removeClass('success');
                 $icon.removeClass('fa-check success');
-            },
-
-            cleanErrorMessage: function(id) {
-                var i;
-                for (i = 0; i < this.errors.length; ++i) {
-                    if (this.errors[i].includes(id)) {
-                        this.errors.splice(i, 1);
-                    }
-                }
             },
 
             thirdPartyAuth: function(event) {
@@ -223,61 +226,71 @@
             getFormData: function() {
                 var obj = FormView.prototype.getFormData.apply(this, arguments),
                     $form = this.$form,
-                    $label,
-                    $emailElement,
-                    $confirmEmailElement,
-                    email = '',
-                    confirmEmail = '';
+                    $confirmEmailElement = $form.find('input[name=confirm_email]'),
+                    errors = this.errors,
+                    elements = $form[0].elements,
+                    $el,
+                    key = '';
 
-                $emailElement = $form.find('input[name=email]');
-                $confirmEmailElement = $form.find('input[name=confirm_email]');
+                for (let i = 0; i < elements.length; i++) {
+                    $el = $(elements[i]);
+                    key = $el.attr('name') || false;
 
-                if ($confirmEmailElement.length) {
-                    email = $emailElement.val();
-                    confirmEmail = $confirmEmailElement.val();
-                    $label = $form.find('label[for=' + $confirmEmailElement.attr('id') + ']');
+                    // Due to a bug in firefox, whitespaces in email type field are not removed.
+                    // TODO: Remove this code once firefox bug is resolved.
+                    if (key === 'email') {
+                        $el.val($el.val().trim());
+                    }
 
-                    if (confirmEmail !== '' && email !== confirmEmail) {
-                        this.errors.push(StringUtils.interpolate(
-                            '<li>{error}</li>', {
-                                error: $confirmEmailElement.data('errormsg-required')
-                            }
-                        ));
-                        $confirmEmailElement.addClass('error');
-                        $label.addClass('error');
-                    } else if (confirmEmail !== '') {
-                        obj.confirm_email = confirmEmail;
-                        $confirmEmailElement.removeClass('error');
-                        $label.removeClass('error');
+                    // Simulate live validation.
+                    for (let j = 0; j < this.liveValidationFields.length; ++j) {
+                        if (key === this.liveValidationFields[j]) {
+                            $el.blur();
+                        }
                     }
                 }
+
+                if ($confirmEmailElement.length) {
+                    obj.confirm_email = $confirmEmailElement.val();
+                }
+
+                // Live validation changes error messages here: leave them be.
+                this.errors = errors;
 
                 return obj;
             },
 
-            liveValidate: function(event) {
-                var url = '/api/user/v1/validation/registration',
-                    dataType = 'json',
-                    data = {
-                        username: $('#register-username').val(),
-                        email: $('#register-email').val(),
-                        password: $('#register-password').val()
-                    },
-                    method = 'POST';
-                FormView.prototype.liveValidate(event, url, dataType, data, method, this.model);
+            liveValidateHandler: function(event) {
+                var $el = $(event.currentTarget);
+                if ($el.attr('name') === 'confirm_email') {
+                    this.liveValidateConfirmationEmail($el);
+                } else {
+                    this.liveValidate($el);
+                }
             },
 
-            validateConfirmationEmail: function(event) {
+            liveValidate: function($el) {
+                var data = {};
+                for (let i = 0; i < this.liveValidationFields.length; ++i) {
+                    let name = this.liveValidationFields[i];
+                    data[name] = this.$form.find('input[name=' + name + ']').val();
+                }
+                FormView.prototype.liveValidate(
+                    $el, '/api/user/v1/validation/registration', 'json', data, 'POST', this.model
+                );
+            },
+
+            // We can validate confirmation emails fully client-side.
+            liveValidateConfirmationEmail: function($confirmationEmail) {
                 var validationDecisions = {validation_decisions: {confirm_email: ''}},
                     decisions = validationDecisions.validation_decisions,
-                    $email = this.$form.find('input[name=email]'),
-                    $confirmationEmail = $(event.currentTarget);
+                    $email = this.$form.find('input[name=email]');
 
-                if ($email.val() !== $confirmationEmail.val()) {
-                    decisions.confirm_email = gettext('Emails do not match.');
+                if ($email.val() !== $confirmationEmail.val() || !$confirmationEmail.val()) {
+                    decisions.confirm_email = $confirmationEmail.data('errormsg-required');
                 }
 
-                this.renderLiveValidations(event.currentTarget, validationDecisions);
+                this.renderLiveValidations($confirmationEmail, validationDecisions);
             }
         });
     });

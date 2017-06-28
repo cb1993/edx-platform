@@ -177,7 +177,9 @@
                                 $el.removeClass('error');
                                 $label.removeClass('error');
                             } else {
-                                errors.push(test.message);
+                                if (!this.errorExists(test.id)) {
+                                    errors.push(test.message);
+                                }
                                 $el.addClass('error');
                                 $label.addClass('error');
                             }
@@ -219,6 +221,36 @@
                 renderFormFeedback: function(template, context) {
                     var tpl = HtmlUtils.template(template);
                     HtmlUtils.prepend(this.$formFeedback, tpl(context));
+                },
+
+                doOnErrorList: function(id, action) {
+                    for (let i = 0; i < this.errors.length; ++i) {
+                        if (this.errors[i].includes(id)) {
+                            action(i);
+                        }
+                    }
+                },
+
+                errorExists: function(id) {
+                    this.doOnErrorList(id, function(index) {
+                        return true;
+                    });
+                },
+
+                deleteError: function(id) {
+                    var self = this;
+                    this.doOnErrorList(id, function(index) {
+                        self.errors.splice(index, 1);
+                    });
+                },
+
+                addError: function(error, id) {
+                    this.errors.push(StringUtils.interpolate(
+                        '<li id="{errorId}">{error}</li>', {
+                            errorId: id,
+                            error: error
+                        }
+                    ));
                 },
 
             /* Allows extended views to add non-form attributes
@@ -295,14 +327,14 @@
                     return EdxUtilsValidate.validate($el);
                 },
 
-                liveValidate: function(event, url, dataType, data, method, model) {
+                liveValidate: function($el, url, dataType, data, method, model) {
                     $.ajax({
                         url: url,
                         dataType: dataType,
                         data: data,
                         method: method,
                         success: function(response) {
-                            model.trigger('validation', event.currentTarget, response);
+                            model.trigger('validation', $el, response);
                         }
                     });
                 }
