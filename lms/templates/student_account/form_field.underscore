@@ -25,7 +25,7 @@
             name="<%= name %>"
             class="input-inline"
             <% if ( instructions ) { %>
-            aria-describedby="<%= form %>-<%= name %>-desc"
+            aria-describedby="<%= form %>-<%= name %>-desc <%= form %>-<%= name %>-validation-error"
             <% } %>
             <% if ( typeof errorMessages !== 'undefined' ) {
                 _.each(errorMessages, function( msg, type ) {%>
@@ -37,7 +37,7 @@
             <option value="<%= el.value%>"<% if ( el.default ) { %> data-isdefault="true" selected<% } %>><%= el.name %></option>
         <% }); %>
         </select>
-        <span class="tip error" id="<%= form %>-<%= name %>-validation-error"></span>
+        <span id="<%= form %>-<%= name %>-validation-error" class="tip error" aria-live="assertive"></span>
         <% if ( instructions ) { %> <span class="tip tip-input" id="<%= form %>-<%= name %>-desc"><%= instructions %></span><% } %>
         <% if (supplementalLink && supplementalText) { %>
             <div class="supplemental-link">
@@ -50,7 +50,7 @@
             name="<%= name %>"
             class="input-block"
             <% if ( instructions ) { %>
-            aria-describedby="<%= form %>-<%= name %>-desc"
+            aria-describedby="<%= form %>-<%= name %>-desc <%= form %>-<%= name %>-validation-error"
             <% } %>
             <% if ( restrictions.min_length ) { %> minlength="<%= restrictions.min_length %>"<% } %>
             <% if ( restrictions.max_length ) { %> maxlength="<%= restrictions.max_length %>"<% } %>
@@ -60,7 +60,7 @@
             <%  });
             } %>
             <% if ( required ) { %> aria-required="true" required<% } %> ></textarea>
-            <span class="tip error" id="<%= form %>-<%= name %>-validation-error"></span>
+            <span id="<%= form %>-<%= name %>-validation-error" class="tip error" aria-live="assertive"></span>
             <% if ( instructions ) { %> <span class="tip tip-input" id="<%= form %>-<%= name %>-desc"><%= instructions %></span><% } %>
             <% if (supplementalLink && supplementalText) { %>
                 <div class="supplemental-link">
@@ -79,7 +79,9 @@
            type="<%= type %>"
            name="<%= name %>"
            class="input-block <% if ( type === 'checkbox' ) { %>checkbox<% } %>"
-            <% if ( instructions ) { %> aria-describedby="<%= form %>-<%= name %>-desc" <% } %>
+            <% if ( instructions ) { %>
+            aria-describedby="<%= form %>-<%= name %>-desc <%= form %>-<%= name %>-validation-error"
+            <% } %>
             <% if ( restrictions.min_length ) { %> minlength="<%= restrictions.min_length %>"<% } %>
             <% if ( restrictions.max_length ) { %> maxlength="<%= restrictions.max_length %>"<% } %>
             <% if ( required ) { %> required<% } %>
@@ -106,7 +108,7 @@
                 <span class="icon fa" id="<%= form %>-<%= name %>-validation-icon" aria-hidden="true"></span>
             </label>
         <% } %>
-        <span class="tip error" id="<%= form %>-<%= name %>-validation-error"></span>
+        <span id="<%= form %>-<%= name %>-validation-error" class="tip error" aria-live="assertive"></span>
         <% if ( instructions ) { %> <span class="tip tip-input" id="<%= form %>-<%= name %>-desc"><%= instructions %></span><% } %>
     <% } %>
 
