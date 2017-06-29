@@ -98,15 +98,17 @@ class RegistrationValidationView(APIView):
         username = request.data.get('username')
         invalid_username_error = get_username_validation_error(username)
         username_exists_error = get_username_existence_validation_error(username)
-        # Existing usernames are already valid, so we prefer that error.
-        return username_exists_error or invalid_username_error
+        # We prefer seeing for invalidity first.
+        # Some invalid usernames (like for superusers) may exist.
+        return invalid_username_error or username_exists_error
 
     def email_handler(self, request):
         email = request.data.get('email')
         invalid_email_error = get_email_validation_error(email)
         email_exists_error = get_email_existence_validation_error(email)
-        # Existing emails are already valid, so we prefer that error.
-        return email_exists_error or invalid_email_error
+        # We prefer seeing for invalidity first.
+        # Some invalid emails (like a blank one for superusers) may exist.
+        return invalid_email_error or email_exists_error
 
     def password_handler(self, request):
         username = request.data.get('username') or None

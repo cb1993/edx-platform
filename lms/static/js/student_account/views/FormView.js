@@ -11,38 +11,25 @@
     ], function($, _, Backbone, EdxUtilsValidate, HtmlUtils, StringUtils, formErrorsTpl) {
             return Backbone.View.extend({
                 tagName: 'form',
-
                 el: '',
-
                 tpl: '',
-
                 fieldTpl: '#form_field-tpl',
-
                 formErrorsTpl: formErrorsTpl,
-
                 formErrorsJsHook: 'js-form-errors',
-
                 defaultFormErrorsTitle: gettext('An error occurred.'),
-
                 events: {},
-
                 errors: [],
-
+                liveValidationFields: {},
                 formType: '',
-
                 $form: {},
-
                 fields: [],
-
             // String to append to required label fields
                 requiredStr: '',
-
             /*
-            Translators: This string is appended to optional field labels on the student login, registration, and
-            profile forms.
+                Translators: This string is appended to optional field labels on the student login, registration, and
+                profile forms.
             */
                 optionalStr: gettext('(optional)'),
-
                 submitButton: '',
 
                 initialize: function(data) {
@@ -157,7 +144,7 @@
                         $label,
                         key = '',
                         errors = [],
-                        test = {};
+                        validation = {};
 
                     for (i = 0; i < len; i++) {
                         $el = $(elements[i]);
@@ -171,15 +158,13 @@
                         }
 
                         if (key) {
-                            test = this.validate(elements[i]);
-                            if (test.isValid) {
+                            validation = this.validate(elements[i]);
+                            if (validation.isValid) {
                                 obj[key] = $el.attr('type') === 'checkbox' ? $el.is(':checked') : $el.val();
                                 $el.removeClass('error');
                                 $label.removeClass('error');
                             } else {
-                                if (!this.errorExists(test.id)) {
-                                    errors.push(test.message);
-                                }
+                                errors.push(validation.message);
                                 $el.addClass('error');
                                 $label.addClass('error');
                             }
@@ -232,10 +217,9 @@
                     }
                 },
 
-                errorExists: function(id) {
-                    this.doOnErrorList(id, function(index) { // eslint-disable-line no-unused-vars
-                        return true;
-                    });
+                updateError: function(error, id) {
+                    this.deleteError(id);
+                    this.addError(error, id);
                 },
 
                 deleteError: function(id) {
@@ -338,6 +322,17 @@
                             model.trigger('validation', $el, response);
                         }
                     });
+                },
+
+                inValidationFields: function($el) {
+                    var field,
+                        name = $el.attr('name') || false;
+                    for (field in this.liveValidationFields) { // eslint-disable-line no-restricted-syntax
+                        if (this.liveValidationFields.hasOwnProperty(field) && field === name) {
+                            return true;
+                        }
+                    }
+                    return false;
                 }
             });
         });
