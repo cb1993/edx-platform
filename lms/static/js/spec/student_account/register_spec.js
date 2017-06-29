@@ -52,6 +52,7 @@
                     FORM_DESCRIPTION = {
                         method: 'post',
                         submit_url: '/user_api/v1/account/registration/',
+                        validation_url: '/api/user/v1/validation/registration',
                         fields: [
                             {
                                 placeholder: 'username@domain.com',
@@ -238,6 +239,8 @@
                             isValid: validationSuccess,
                             message: 'Submission was validated.'
                         });
+                    // Live validation's success should do nothing on submit.
+                        spyOn(view, 'liveValidate').and.callFake(function() {});
                     }
 
                 // Submit the email address

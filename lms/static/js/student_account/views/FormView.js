@@ -224,7 +224,8 @@
                 },
 
                 doOnErrorList: function(id, action) {
-                    for (let i = 0; i < this.errors.length; ++i) {
+                    var i;
+                    for (i = 0; i < this.errors.length; ++i) {
                         if (this.errors[i].includes(id)) {
                             action(i);
                         }
@@ -232,7 +233,7 @@
                 },
 
                 errorExists: function(id) {
-                    this.doOnErrorList(id, function(index) {
+                    this.doOnErrorList(id, function(index) { // eslint-disable-line no-unused-vars
                         return true;
                     });
                 },

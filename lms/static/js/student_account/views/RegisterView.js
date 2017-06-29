@@ -227,12 +227,12 @@
                 var obj = FormView.prototype.getFormData.apply(this, arguments),
                     $form = this.$form,
                     $confirmEmailElement = $form.find('input[name=confirm_email]'),
-                    errors = this.errors,
                     elements = $form[0].elements,
                     $el,
-                    key = '';
+                    key = '',
+                    i, j;
 
-                for (let i = 0; i < elements.length; i++) {
+                for (i = 0; i < elements.length; i++) {
                     $el = $(elements[i]);
                     key = $el.attr('name') || false;
 
@@ -243,7 +243,7 @@
                     }
 
                     // Simulate live validation.
-                    for (let j = 0; j < this.liveValidationFields.length; ++j) {
+                    for (j = 0; j < this.liveValidationFields.length; ++j) {
                         if (key === this.liveValidationFields[j]) {
                             $el.blur();
                         }
@@ -253,9 +253,6 @@
                 if ($confirmEmailElement.length) {
                     obj.confirm_email = $confirmEmailElement.val();
                 }
-
-                // Live validation changes error messages here: leave them be.
-                this.errors = errors;
 
                 return obj;
             },
@@ -270,9 +267,11 @@
             },
 
             liveValidate: function($el) {
-                var data = {};
-                for (let i = 0; i < this.liveValidationFields.length; ++i) {
-                    let name = this.liveValidationFields[i];
+                var data = {},
+                    name,
+                    i;
+                for (i = 0; i < this.liveValidationFields.length; ++i) {
+                    name = this.liveValidationFields[i];
                     data[name] = this.$form.find('input[name=' + name + ']').val();
                 }
                 FormView.prototype.liveValidate(
