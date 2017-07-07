@@ -446,7 +446,7 @@
                         expect(view.getRequiredTextLabel($el)).not.toHaveClass('hidden');
 
                     // Confirm fa-times shows.
-                        expect(view.getIcon($el)).toHaveClass('fa-times');
+                        expect(view.getIcon($el)).toHaveClass('fa-exclamation');
                         expect(view.getIcon($el)).toBeVisible();
 
                     // Confirm the error tip shows an error message.
