@@ -94,6 +94,9 @@ class RegistrationValidationView(APIView):
                 decision with the username is made if it exists in the input.
     """
 
+    # This end-point is available to anonymous users, so no authentication is needed.
+    authentication_classes = []
+
     def username_handler(self, request):
         username = request.data.get('username')
         invalid_username_error = get_username_validation_error(username)
