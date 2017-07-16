@@ -649,7 +649,7 @@ def _validate_country(country):
     :return: None
 
     """
-    if country == '':
+    if country == '' or country == '--':
         raise AccountCountryInvalid(REQUIRED_FIELD_COUNTRY_MSG)
 
 

@@ -184,7 +184,7 @@
                 renderLiveValidationSuccess: function($el, $label, $req, $icon, $tip) {
                     var self = this,
                         name = $el.attr('name'),
-                        validationFadeTime = this.successfulValidationDisplaySeconds*1000;
+                        validationFadeTime = this.successfulValidationDisplaySeconds * 1000;
                     this.removeLiveValidationIndicators(
                         $el, $label, $req, $icon,
                         'error', this.negativeValidationIcon
@@ -314,7 +314,7 @@
                         if (!$confirmEmail.val() || $emailElement.val() !== $confirmEmail.val()) {
                             this.errors.push(StringUtils.interpolate('<li>{error}</li>', {
                                 error: $confirmEmail.data('errormsg-required')
-                            }))
+                            }));
                         }
                         obj.confirm_email = $confirmEmail.val();
                     }

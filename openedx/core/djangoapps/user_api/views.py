@@ -33,8 +33,8 @@ from .accounts import (
     NAME_MAX_LENGTH,
     PASSWORD_MAX_LENGTH, PASSWORD_MIN_LENGTH,
     USERNAME_MAX_LENGTH, USERNAME_MIN_LENGTH,
-    EMAIL_CONFLICT_MSG,
-    USERNAME_CONFLICT_MSG
+    EMAIL_CONFLICT_MSG, USERNAME_CONFLICT_MSG,
+    REQUIRED_FIELD_CONFIRM_EMAIL_MSG, REQUIRED_FIELD_COUNTRY_MSG
 )
 from .accounts.api import check_account_exists
 from .helpers import FormDescription, require_post_params, shim_student_view
@@ -417,7 +417,7 @@ class RegistrationView(APIView):
         # Translators: This label appears above a field on the registration form
         # meant to confirm the user's email address.
         email_label = _(u"Confirm Email")
-        error_msg = _(u"The email addresses do not match.")
+        error_msg = REQUIRED_FIELD_CONFIRM_EMAIL_MSG
 
         form_desc.add_field(
             "confirm_email",
@@ -774,7 +774,7 @@ class RegistrationView(APIView):
         # Translators: This label appears above a dropdown menu on the registration
         # form used to select the country in which the user lives.
         country_label = _(u"Country")
-        error_msg = _(u"Please select your Country.")
+        error_msg = REQUIRED_FIELD_COUNTRY_MSG
 
         # If we set a country code, make sure it's uppercase for the sake of the form.
         default_country = form_desc._field_overrides.get('country', {}).get('defaultValue')

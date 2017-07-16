@@ -343,7 +343,7 @@ class RegisterFromCombinedPageTest(UniqueCourseTest):
 
         # Verify that the expected errors are displayed.
         errors = self.register_page.wait_for_errors()
-        self.assertIn(u'Username must be between 2 and 30 characters long.', errors)
+        self.assertIn(u'Please enter your Public Username.', errors)
         self.assertIn(u'You must agree to the édX Terms of Service and Honor Code', errors)
         self.assertIn(u'Please select your Country.', errors)
         self.assertIn(u'Please tell us your favorite movie.', errors)

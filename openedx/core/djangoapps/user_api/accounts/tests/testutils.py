@@ -60,8 +60,8 @@ INVALID_PASSWORDS = [
 
 INVALID_COUNTRIES = [
     None,
-    u'',
-    u'--'
+    "",
+    "--"
 ]
 
 VALID_NAMES = [
