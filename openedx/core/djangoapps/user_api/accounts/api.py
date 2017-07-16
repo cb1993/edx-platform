@@ -23,7 +23,7 @@ from openedx.core.lib.api.view_utils import add_serializer_errors
 from ..errors import (
     AccountUpdateError, AccountValidationError,
     AccountDataBadLength, AccountDataBadType,
-    AccountUsernameInvalid, AccountPasswordInvalid, AccountEmailInvalid,
+    AccountUsernameInvalid, AccountPasswordInvalid, AccountEmailInvalid, AccountCountryInvalid,
     AccountUserAlreadyExists, AccountUsernameAlreadyExists, AccountEmailAlreadyExists,
     UserAPIInternalError, UserAPIRequestError, UserNotFound, UserNotAuthorized
 )
@@ -31,13 +31,14 @@ from ..forms import PasswordResetFormNoActive
 from ..helpers import intercept_errors
 
 from . import (
-    EMAIL_BAD_LENGTH_MSG, PASSWORD_BAD_LENGTH_MSG, USERNAME_BAD_LENGTH_MSG,
+    EMAIL_BAD_LENGTH_MSG, USERNAME_BAD_LENGTH_MSG,
     EMAIL_BAD_TYPE_MSG, PASSWORD_BAD_TYPE_MSG, USERNAME_BAD_TYPE_MSG,
     EMAIL_CONFLICT_MSG, USERNAME_CONFLICT_MSG,
     EMAIL_INVALID_MSG,
     EMAIL_MIN_LENGTH, PASSWORD_MIN_LENGTH, USERNAME_MIN_LENGTH,
     EMAIL_MAX_LENGTH, PASSWORD_MAX_LENGTH, USERNAME_MAX_LENGTH,
-    PASSWORD_CANT_EQUAL_USERNAME_MSG
+    PASSWORD_CANT_EQUAL_USERNAME_MSG, PASSWORD_EMPTY_MSG, PASSWORD_BAD_MIN_LENGTH_MSG, PASSWORD_BAD_MAX_LENGTH_MSG,
+    REQUIRED_FIELD_COUNTRY_MSG, REQUIRED_FIELD_CONFIRM_EMAIL_MSG, REQUIRED_FIELD_NAME_MSG
 )
 from .serializers import (
     AccountLegacyProfileSerializer, AccountUserSerializer,
@@ -421,7 +422,18 @@ def request_password_change(email, orig_host, is_secure):
         raise UserNotFound
 
 
-def get_username_validation_error(username, default=''):
+def get_name_validation_error(name):
+    """Get the built-in validation error message for when
+    the user's real name is invalid in some way (we wonder how).
+
+    :param name: The proposed user's real name.
+    :return: Validation error message.
+
+    """
+    return '' if name else REQUIRED_FIELD_NAME_MSG
+
+
+def get_username_validation_error(username):
     """Get the built-in validation error message for when
     the username is invalid in some way.
 
@@ -430,14 +442,10 @@ def get_username_validation_error(username, default=''):
     :return: Validation error message.
 
     """
-    try:
-        _validate_username(username)
-    except AccountUsernameInvalid as invalid_username_err:
-        return invalid_username_err.message
-    return default
+    return _validate(_validate_username, AccountUsernameInvalid, username)
 
 
-def get_email_validation_error(email, default=''):
+def get_email_validation_error(email):
     """Get the built-in validation error message for when
     the email is invalid in some way.
 
@@ -446,14 +454,23 @@ def get_email_validation_error(email, default=''):
     :return: Validation error message.
 
     """
-    try:
-        _validate_email(email)
-    except AccountEmailInvalid as invalid_email_err:
-        return invalid_email_err.message
-    return default
+    return _validate(_validate_email, AccountEmailInvalid, email)
 
 
-def get_password_validation_error(password, username=None, default=''):
+def get_confirm_email_validation_error(confirm_email, email):
+    """Get the built-in validation error message for when
+    the confirmation email is invalid in some way.
+
+    :param confirm_email: The proposed confirmation email (unicode).
+    :param email: The email to match (unicode).
+    :param default: THe message to default to in case of no error.
+    :return: Validation error message.
+
+    """
+    return _validate(_validate_confirm_email, AccountEmailInvalid, confirm_email, email)
+
+
+def get_password_validation_error(password, username=None):
     """Get the built-in validation error message for when
     the password is invalid in some way.
 
@@ -463,14 +480,21 @@ def get_password_validation_error(password, username=None, default=''):
     :return: Validation error message.
 
     """
-    try:
-        _validate_password(password, username)
-    except AccountPasswordInvalid as invalid_password_err:
-        return invalid_password_err.message
-    return default
+    return _validate(_validate_password, AccountPasswordInvalid, password, username)
 
 
-def get_username_existence_validation_error(username, default=''):
+def get_country_validation_error(country):
+    """Get the built-in validation error message for when
+    the country is invalid in some way.
+
+    :param country: The proposed country.
+    :return: Validation error message.
+
+    """
+    return _validate(_validate_country, AccountCountryInvalid, country)
+
+
+def get_username_existence_validation_error(username):
     """Get the built-in validation error message for when
     the username has an existence conflict.
 
@@ -479,14 +503,10 @@ def get_username_existence_validation_error(username, default=''):
     :return: Validation error message.
 
     """
-    try:
-        _validate_username_doesnt_exist(username)
-    except AccountUsernameAlreadyExists as username_exists_err:
-        return username_exists_err.message
-    return default
+    return _validate(_validate_username_doesnt_exist, AccountUsernameAlreadyExists, username)
 
 
-def get_email_existence_validation_error(email, default=''):
+def get_email_existence_validation_error(email):
     """Get the built-in validation error message for when
     the email has an existence conflict.
 
@@ -495,11 +515,7 @@ def get_email_existence_validation_error(email, default=''):
     :return: Validation error message.
 
     """
-    try:
-        _validate_email_doesnt_exist(email)
-    except AccountEmailAlreadyExists as email_exists_err:
-        return email_exists_err.message
-    return default
+    return _validate(_validate_email_doesnt_exist, AccountEmailAlreadyExists, email)
 
 
 def _get_user_and_profile(username):
@@ -514,6 +530,24 @@ def _get_user_and_profile(username):
     existing_user_profile, _ = UserProfile.objects.get_or_create(user=existing_user)
 
     return existing_user, existing_user_profile
+
+
+def _validate(validation_func, err, *args):
+    """Generic validation function that returns default on
+    no errors, but the message associated with the err class
+    otherwise. Passes all other arguments into the validation function.
+
+    :param validation_func: The function used to perform validation.
+    :param err: The error class to catch.
+    :param args: The arguments to pass into the validation function.
+    :return: Validation error message, or empty string if no error.
+
+    """
+    try:
+        validation_func(*args)
+    except err as validation_err:
+        return validation_err.message
+    return ''
 
 
 def _validate_username(username):
@@ -564,6 +598,18 @@ def _validate_email(email):
         raise AccountEmailInvalid(invalid_email_err.message)
 
 
+def _validate_confirm_email(confirm_email, email):
+    """Validate the confirmation email field.
+
+    :param confirm_email: The proposed confirmation email. (unicode)
+    :param email: The email to match. (unicode)
+    :return: None
+
+    """
+    if not confirm_email or confirm_email != email:
+        raise AccountEmailInvalid(REQUIRED_FIELD_CONFIRM_EMAIL_MSG)
+
+
 def _validate_password(password, username=None):
     """Validate the format of the user's password.
 
@@ -583,10 +629,28 @@ def _validate_password(password, username=None):
     """
     try:
         _validate_type(password, basestring, PASSWORD_BAD_TYPE_MSG)
-        _validate_length(password, PASSWORD_MIN_LENGTH, PASSWORD_MAX_LENGTH, PASSWORD_BAD_LENGTH_MSG)
+
+        if len(password) == 0:
+            raise AccountPasswordInvalid(PASSWORD_EMPTY_MSG)
+        elif len(password) < PASSWORD_MIN_LENGTH:
+            raise AccountPasswordInvalid(PASSWORD_BAD_MIN_LENGTH_MSG)
+        elif len(password) > PASSWORD_MAX_LENGTH:
+            raise AccountPasswordInvalid(PASSWORD_BAD_MAX_LENGTH_MSG)
+
         _validate_password_works_with_username(password, username)
     except (AccountDataBadType, AccountDataBadLength) as invalid_password_err:
         raise AccountPasswordInvalid(invalid_password_err.message)
+
+
+def _validate_country(country):
+    """Validate the country selection.
+
+    :param country: The proposed country.
+    :return: None
+
+    """
+    if country == '':
+        raise AccountCountryInvalid(REQUIRED_FIELD_COUNTRY_MSG)
 
 
 def _validate_username_doesnt_exist(username):
@@ -648,6 +712,7 @@ def _validate_length(data, min, max, err):
     :param data: The data to do the test on.
     :param min: The minimum allowed length.
     :param max: The maximum allowed length.
+    :param err: The error message to throw back if data's length is below min or above max.
     :return: None
     :raises: AccountDataBadLength
 
@@ -667,7 +732,7 @@ def _validate_unicode(data, err=u"Input not valid unicode"):
     """
     try:
         if not isinstance(data, str) and not isinstance(data, unicode):
-            raise UnicodeError
+            raise UnicodeError(err)
         # In some cases we pass the above, but it's still inappropriate utf-8.
         unicode(data)
     except UnicodeError:

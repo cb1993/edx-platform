@@ -286,14 +286,6 @@
                 display: inline;
             }
 
-            &.error {
-                color: $red;
-            }
-
-            &.success {
-                color: $success-color-hover;
-            }
-
             &[for="register-data_sharing_consent"],
             &[for="register-honor_code"],
             &[for="register-terms_of_service"] {
@@ -367,6 +359,17 @@
             }
         }
 
+        textarea,
+        select {
+            &.error {
+                outline-color: $red;
+            }
+
+            &.success {
+                outline-color: $success-color-hover;
+            }
+        }
+
         textarea {
             resize: none;
             height: ($baseline*5);
@@ -382,9 +385,16 @@
             &:active, &:focus {
                 outline: auto;
             }
+        }
 
+        span,
+        label {
             &.error {
-                outline-color: $red;
+                color: $red;
+            }
+
+            &.success {
+                color: $success-color-hover;
             }
         }
 
@@ -395,10 +405,6 @@
 
         .tip {
             display: block;
-        }
-
-        .error {
-            color: $red;
         }
         /** FROM _accounts.scss - end **/
     }

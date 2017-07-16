@@ -63,12 +63,12 @@ USERNAME_CONFLICT_MSG = _(
 USERNAME_BAD_LENGTH_MSG = _(u"Username must be between {min} and {max} characters long.").format(
     min=USERNAME_MIN_LENGTH, max=USERNAME_MAX_LENGTH
 )
-EMAIL_BAD_LENGTH_MSG = _(u"Email must be between {min} and {max} characters long.").format(
-    min=EMAIL_MIN_LENGTH, max=EMAIL_MAX_LENGTH
+EMAIL_BAD_LENGTH_MSG = _(u"Enter a valid email address that contains at least {min} characters.").format(
+    min=EMAIL_MIN_LENGTH
 )
-PASSWORD_BAD_LENGTH_MSG = _(u"Password must be between {min} and {max} characters long.").format(
-    min=PASSWORD_MIN_LENGTH, max=PASSWORD_MAX_LENGTH
-)
+PASSWORD_EMPTY_MSG = _(u"Please enter a password.")
+PASSWORD_BAD_MIN_LENGTH_MSG = _(u"Password is not long enough.")
+PASSWORD_BAD_MAX_LENGTH_MSG = _(u"Password cannot be longer than {max} character.").format(max=PASSWORD_MAX_LENGTH)
 
 # These strings are normally not user-facing.
 USERNAME_BAD_TYPE_MSG = u"Username must be a string."
@@ -78,3 +78,9 @@ PASSWORD_BAD_TYPE_MSG = u"Password must be a string."
 # Translators: This message is shown to users who enter a password matching
 # the username they enter(ed).
 PASSWORD_CANT_EQUAL_USERNAME_MSG = _(u"Password cannot be the same as the username.")
+
+# Translators: These messages are shown to users who do not enter information
+# into the required field or enter it incorrectly.
+REQUIRED_FIELD_NAME_MSG = _(u"Please enter your Full Name.")
+REQUIRED_FIELD_CONFIRM_EMAIL_MSG = _(u"The email addresses do not match.")
+REQUIRED_FIELD_COUNTRY_MSG = _(u"Please select your Country.")

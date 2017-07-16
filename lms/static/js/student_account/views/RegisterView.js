@@ -21,6 +21,7 @@
                 events: {
                     'click .js-register': 'submitForm',
                     'click .login-provider': 'thirdPartyAuth',
+                    'click input[required][type="checkbox"]': 'liveValidateHandler',
                     'blur input[required]': 'liveValidateHandler',
                     'focus input[required]': 'handleRequiredInputFocus',
                 // Select boxes are unfortunately special cases,
@@ -30,10 +31,13 @@
                 },
                 // Hold field names and timeout events for each
                 liveValidationFields: {
+                    name: null,
                     username: null,
                     password: null,
                     email: null,
-                    confirm_email: null
+                    confirm_email: null,
+                    country: null,
+                    honor_code: null
                 },
                 formType: 'register',
                 formStatusTpl: formStatusTpl,
@@ -140,9 +144,13 @@
                         $requiredTextLabel = this.getRequiredTextLabel($el),
                         $icon = this.getIcon($el),
                         $errorTip = this.getErrorTip($el),
-                        error = decisions.validation_decisions[$el.attr('name')];
+                        name = $el.attr('name'),
+                        type = $el.attr('type'),
+                        isCheckbox = type === 'checkbox',
+                        hasError = decisions.validation_decisions[name] !== '',
+                        error = isCheckbox ? '' : decisions.validation_decisions[name];
 
-                    if (error) {
+                    if (hasError) {
                         this.renderLiveValidationError($el, $label, $requiredTextLabel, $icon, $errorTip, error);
                     } else {
                         this.renderLiveValidationSuccess($el, $label, $requiredTextLabel, $icon, $errorTip);
@@ -274,7 +282,8 @@
                 getFormData: function() {
                     var obj = FormView.prototype.getFormData.apply(this, arguments),
                         $form = this.$form,
-                        $confirmEmailElement = $form.find('input[name=confirm_email]'),
+                        $emailElement = $form.find('input[name=email]'),
+                        $confirmEmail = $form.find('input[name=confirm_email]'),
                         elements = $form[0].elements,
                         $el,
                         key = '',
@@ -301,18 +310,24 @@
                         }
                     }
 
-                    if ($confirmEmailElement.length) {
-                        obj.confirm_email = $confirmEmailElement.val();
+                    if ($confirmEmail.length) {
+                        if (!$confirmEmail.val() || $emailElement.val() !== $confirmEmail.val()) {
+                            this.errors.push(StringUtils.interpolate('<li>{error}</li>', {
+                                error: $confirmEmail.data('errormsg-required')
+                            }))
+                        }
+                        obj.confirm_email = $confirmEmail.val();
                     }
 
                     return obj;
                 },
 
                 liveValidateHandler: function(event) {
-                    var $el = $(event.currentTarget);
+                    var $el = $(event.currentTarget),
+                        type = $el.attr('type');
                     if (this.inValidationFields($el)) {
-                        if ($el.attr('name') === 'confirm_email') {
-                            this.liveValidateConfirmationEmail($el);
+                        if (type === 'checkbox') {
+                            this.liveValidateCheckbox($el);
                         } else {
                             this.liveValidate($el);
                         }
@@ -326,7 +341,7 @@
                         field;
                     for (field in this.liveValidationFields) { // eslint-disable-line no-restricted-syntax
                         if (this.liveValidationFields.hasOwnProperty(field)) {
-                            data[field] = this.$form.find('input[name=' + field + ']').val();
+                            data[field] = $('#register-' + field).val();
                         }
                     }
                     FormView.prototype.liveValidate(
@@ -334,17 +349,14 @@
                     );
                 },
 
-                // We can validate confirmation emails fully client-side.
-                liveValidateConfirmationEmail: function($confirmationEmail) {
-                    var validationDecisions = {validation_decisions: {confirm_email: ''}},
+                liveValidateCheckbox: function($checkbox) {
+                    var validationDecisions = {validation_decisions: {}},
                         decisions = validationDecisions.validation_decisions,
-                        $email = this.$form.find('input[name=email]');
-
-                    if ($email.val() !== $confirmationEmail.val() || !$confirmationEmail.val()) {
-                        decisions.confirm_email = $confirmationEmail.data('errormsg-required');
-                    }
-
-                    this.renderLiveValidations($confirmationEmail, validationDecisions);
+                        name = $checkbox.attr('name'),
+                        checked = $checkbox.is(':checked'),
+                        error = $checkbox.data('errormsg-required');
+                    decisions[name] = checked ? '' : error;
+                    this.renderLiveValidations($checkbox, validationDecisions);
                 }
             });
         });
