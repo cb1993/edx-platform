@@ -41,6 +41,7 @@
                 submitButton: '.js-register',
                 positiveValidationIcon: 'fa-check',
                 negativeValidationIcon: 'fa-exclamation',
+                successfulValidationDisplaySeconds: 3,
 
                 preRender: function(data) {
                     this.providers = data.thirdPartyAuth.providers || [];
@@ -186,7 +187,8 @@
 
                 renderLiveValidationSuccess: function($el, $label, $req, $icon, $tip) {
                     var self = this,
-                        name = $el.attr('name');
+                        name = $el.attr('name'),
+                        validationFadeTime = this.successfulValidationDisplaySeconds*1000;
                     this.removeLiveValidationIndicators(
                         $el, $label, $req, $icon,
                         'error', this.negativeValidationIcon
@@ -206,7 +208,7 @@
                             $el, $label, $req, $icon,
                             'success', self.positiveValidationIcon
                         );
-                    }, 10000);
+                    }, validationFadeTime);
                 },
 
                 addLiveValidationIndicators: function($el, $label, $req, $icon, $tip, indicator, icon, msg) {
