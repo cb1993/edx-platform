@@ -17,6 +17,7 @@
             return FormView.extend({
                 el: '#register-form',
                 tpl: '#register-tpl',
+                validationUrl: '/api/user/v1/validation/registration',
                 events: {
                     'click .js-register': 'submitForm',
                     'click .login-provider': 'thirdPartyAuth',
@@ -135,29 +136,16 @@
                 },
 
                 renderLiveValidations: function($el, decisions) {
-                    var elId = $el.attr('id'),
-                        $label = this.getLabel($el),
+                    var $label = this.getLabel($el),
                         $requiredTextLabel = this.getRequiredTextLabel($el),
                         $icon = this.getIcon($el),
                         $errorTip = this.getErrorTip($el),
-                        error = decisions.validation_decisions[$el.attr('name')],
-                        errorId = elId + '-validation-error-container';
+                        error = decisions.validation_decisions[$el.attr('name')];
 
                     if (error) {
                         this.renderLiveValidationError($el, $label, $requiredTextLabel, $icon, $errorTip, error);
-
-                        // Update the error message in the container.
-                        this.updateError(error, errorId);
-                        this.renderErrors(this.defaultFormErrorsTitle, this.errors);
                     } else {
                         this.renderLiveValidationSuccess($el, $label, $requiredTextLabel, $icon, $errorTip);
-
-                        // If an error for this field exists in the container, erase it.
-                        if ($('#' + errorId).length) {
-                            this.deleteError(errorId);
-                            // Pass empty title if no errors, so we don't display the error box.
-                            this.renderErrors(this.errors.length ? this.defaultFormErrorsTitle : '', this.errors);
-                        }
                     }
                 },
 
@@ -342,7 +330,7 @@
                         }
                     }
                     FormView.prototype.liveValidate(
-                        $el, '/api/user/v1/validation/registration', 'json', data, 'POST', this.model
+                        $el, this.validationUrl, 'json', data, 'POST', this.model
                     );
                 },
 
