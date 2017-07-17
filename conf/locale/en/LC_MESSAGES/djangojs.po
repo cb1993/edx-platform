@@ -26,8 +26,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 0.1a\n"
 "Report-Msgid-Bugs-To: openedx-translation@googlegroups.com\n"
-"POT-Creation-Date: 2017-07-06 15:10+0000\n"
-"PO-Revision-Date: 2017-07-06 15:11:43.434371\n"
+"POT-Creation-Date: 2017-07-16 23:54+0000\n"
+"PO-Revision-Date: 2017-07-16 23:54:49.429361\n"
 "Last-Translator: \n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
 "MIME-Version: 1.0\n"
@@ -3536,11 +3536,19 @@ msgid "Revoke access"
 msgstr ""
 
 #: lms/static/js/instructor_dashboard/membership.js
+msgid "Group"
+msgstr ""
+
+#: lms/static/js/instructor_dashboard/membership.js
 msgid "Enter username or email"
 msgstr ""
 
 #: lms/static/js/instructor_dashboard/membership.js
 msgid "Please enter a username or email."
+msgstr ""
+
+#: lms/static/js/instructor_dashboard/membership.js
+msgid "This role requires a divided discussions scheme."
 msgstr ""
 
 #: lms/static/js/instructor_dashboard/membership.js
@@ -4184,6 +4192,10 @@ msgstr ""
 
 #: lms/static/js/student_account/views/RegisterView.js
 msgid "We couldn't create your account."
+msgstr ""
+
+#: lms/static/js/student_account/views/RegisterView.js
+msgid "(required)"
 msgstr ""
 
 #: lms/static/js/student_account/views/RegisterView.js
