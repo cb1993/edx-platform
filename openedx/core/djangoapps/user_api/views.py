@@ -32,13 +32,12 @@ from student.views import create_account_with_params
 from util.json_request import JsonResponse
 
 from .accounts import (
-    EMAIL_MAX_LENGTH,
-    EMAIL_MIN_LENGTH,
+    EMAIL_MAX_LENGTH, EMAIL_MIN_LENGTH,
     NAME_MAX_LENGTH,
-    PASSWORD_MAX_LENGTH,
-    PASSWORD_MIN_LENGTH,
-    USERNAME_MAX_LENGTH,
-    USERNAME_MIN_LENGTH
+    PASSWORD_MAX_LENGTH, PASSWORD_MIN_LENGTH,
+    USERNAME_MAX_LENGTH, USERNAME_MIN_LENGTH,
+    EMAIL_CONFLICT_MSG, USERNAME_CONFLICT_MSG,
+    REQUIRED_FIELD_CONFIRM_EMAIL_MSG, REQUIRED_FIELD_COUNTRY_MSG
 )
 from .accounts.api import check_account_exists
 from .helpers import FormDescription, require_post_params, shim_student_view
@@ -340,18 +339,8 @@ class RegistrationView(APIView):
         conflicts = check_account_exists(email=email, username=username)
         if conflicts:
             conflict_messages = {
-                "email": _(
-                    # Translators: This message is shown to users who attempt to create a new
-                    # account using an email address associated with an existing account.
-                    u"It looks like {email_address} belongs to an existing account. "
-                    u"Try again with a different email address."
-                ).format(email_address=email),
-                "username": _(
-                    # Translators: This message is shown to users who attempt to create a new
-                    # account using a username associated with an existing account.
-                    u"It looks like {username} belongs to an existing account. "
-                    u"Try again with a different username."
-                ).format(username=username),
+                "email": EMAIL_CONFLICT_MSG.format(email_address=email),
+                "username": USERNAME_CONFLICT_MSG.format(username=username),
             }
             errors = {
                 field: [{"user_message": conflict_messages[field]}]
@@ -439,7 +428,7 @@ class RegistrationView(APIView):
         # Translators: This label appears above a field on the registration form
         # meant to confirm the user's email address.
         email_label = _(u"Confirm Email")
-        error_msg = _(u"The email addresses do not match.")
+        error_msg = REQUIRED_FIELD_CONFIRM_EMAIL_MSG
 
         form_desc.add_field(
             "confirm_email",
@@ -796,7 +785,7 @@ class RegistrationView(APIView):
         # Translators: This label appears above a dropdown menu on the registration
         # form used to select the country in which the user lives.
         country_label = _(u"Country")
-        error_msg = _(u"Please select your Country.")
+        error_msg = REQUIRED_FIELD_COUNTRY_MSG
 
         # If we set a country code, make sure it's uppercase for the sake of the form.
         default_country = form_desc._field_overrides.get('country', {}).get('defaultValue')
