@@ -1379,7 +1379,8 @@ class StudentAdminTest(BaseInstructorDashboardTest):
         self.username, _ = self.log_in_as_instructor()
         self.instructor_dashboard_page = self.visit_instructor_dashboard()
 
-    @skip("EDUCATOR-552, EDUCATOR-949")
+    # @skip("EDUCATOR-552, EDUCATOR-949")
+    @flaky(max_runs=20, min_passes=20)
     def test_rescore_nonrescorable(self):
         student_admin_section = self.instructor_dashboard_page.select_student_admin(StudentSpecificAdmin)
         student_admin_section.set_student_email_or_username(self.username)
@@ -1387,6 +1388,7 @@ class StudentAdminTest(BaseInstructorDashboardTest):
         # not a rescorable block
         student_admin_section.set_problem_location(self.vertical.locator)
         getattr(student_admin_section, 'rescore_button').click()
+        student_admin_section.wait_for_page()
         self.assertTrue(self.instructor_dashboard_page.is_rescore_unsupported_message_visible())
 
     def test_rescore_rescorable(self):
