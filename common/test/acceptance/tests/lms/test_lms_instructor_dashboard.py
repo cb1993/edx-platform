@@ -31,6 +31,7 @@ from common.test.acceptance.tests.helpers import (
     disable_animations,
     get_modal_alert
 )
+from flaky import flaky
 
 
 class BaseInstructorDashboardTest(EventsTestMixin, UniqueCourseTest):
@@ -395,8 +396,10 @@ class ProctoredExamsTest(BaseInstructorDashboardTest):
 
         # Stop the timed exam.
         self.courseware_page.stop_timed_exam()
+        LogoutPage(self.browser).visit()
 
-    @skip("EDUCATOR-949")
+    # @skip("EDUCATOR-949")
+    @flaky(max_runs=20, min_passes=20)
     def test_can_add_remove_allowance(self):
         """
         Make sure that allowances can be added and removed.
@@ -426,7 +429,8 @@ class ProctoredExamsTest(BaseInstructorDashboardTest):
         # Then, the added record should be visible
         self.assertTrue(allowance_section.is_allowance_record_visible)
 
-    @skip("EDUCATOR-551, EDUCATOR-949")
+    # @skip("EDUCATOR-551, EDUCATOR-949")
+    @flaky(max_runs=20, min_passes=20)
     def test_can_reset_attempts(self):
         """
         Make sure that Exam attempts are visible and can be reset.
