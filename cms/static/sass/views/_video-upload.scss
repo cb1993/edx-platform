@@ -4,14 +4,6 @@
     @include box-sizing(border-box);
   }
 
-  .content-primary {
-    @extend .ui-col-wide;
-  }
-
-  .content-supplementary {
-    @extend .ui-col-narrow;
-  }
-
   .nav-actions {
 
     .fa-cloud-upload {
@@ -38,6 +30,10 @@
         background: $blue-l5;
         border-style: solid;
         border-color: $blue-l4;
+      }
+
+      .video-max-file-size-text {
+        margin-top: ($baseline/2);
       }
     }
   }

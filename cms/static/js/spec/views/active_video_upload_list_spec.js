@@ -57,6 +57,23 @@ define(
                 jasmine.Ajax.uninstall();
             });
 
+            it('renders correct text in file drag/drop area', function() {
+                var messages = {
+                        '.video-upload-text': 'Drag and drop or click here to upload video files.',
+                        '.video-max-file-size-text': StringUtils.interpolate(
+                            'Max file size: {maxFileSize} GB', {maxFileSize: this.videoUploadMaxFileSizeInGB}
+                        ),
+                        '.video-allowed-extensions-text': StringUtils.interpolate(
+                            'Extensions allowed: {extensions}', {extensions: this.videoSupportedFileFormats.join(', ')}
+                        )
+                    },
+                    self = this;
+
+                Object.keys(messages).forEach(function(messageClass) {
+                    expect(self.view.$(messageClass).text().trim()).toEqual(messages[messageClass]);
+                });
+            });
+
             it('should trigger file selection when either the upload button or the drop zone is clicked', function() {
                 var clickSpy = jasmine.createSpy();
                 clickSpy.and.callFake(function(event) { event.preventDefault(); });

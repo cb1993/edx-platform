@@ -26,7 +26,7 @@ define([
             defaultFailureMessage: gettext('This may be happening because of an error with our server or your internet connection. Try refreshing the page or making sure you are online.'),  // eslint-disable-line max-len
 
             initialize: function(options) {
-                this.template = HtmlUtils.template(activeVideoUploadListTemplate)({});
+                this.template = HtmlUtils.template(activeVideoUploadListTemplate);
                 this.collection = new Backbone.Collection();
                 this.itemViews = [];
                 this.listenTo(this.collection, 'add', this.addUpload);
@@ -45,7 +45,10 @@ define([
 
                 HtmlUtils.setHtml(
                     this.$el,
-                    this.template
+                    this.template({
+                        maxFileSize: this.videoUploadMaxFileSizeInGB,
+                        videoExtensions: this.videoSupportedFileFormats.join(', ')
+                    })
                 );
                 _.each(this.itemViews, this.renderUploadView.bind(this));
                 this.$uploadForm = this.$('.file-upload-form');
