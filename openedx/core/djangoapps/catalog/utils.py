@@ -57,10 +57,7 @@ def get_programs(site, uuid=None):
             logger.warning(missing_details_msg_tpl.format(uuid=uuid))
 
         return program
-    if waffle.switch_is_active('get-multitenant-programs'):
-        uuids = cache.get(SITE_PROGRAM_UUIDS_CACHE_KEY_TPL.format(domain=site.domain), [])
-    else:
-        uuids = cache.get(PROGRAM_UUIDS_CACHE_KEY, [])
+    uuids = cache.get(SITE_PROGRAM_UUIDS_CACHE_KEY_TPL.format(domain=site.domain), [])
     if not uuids:
         logger.warning('Failed to get program UUIDs from the cache.')
 

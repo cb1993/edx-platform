@@ -154,9 +154,8 @@ def courses(request):
         else:
             courses_list = sort_by_announcement(courses_list)
 
-    # Add marketable programs to the context if the multi-tenant programs switch is enabled.
-    if waffle.switch_is_active('get-multitenant-programs'):
-        programs_list = get_programs_with_type(request.site, include_hidden=False)
+    # Add marketable programs to the context.
+    programs_list = get_programs_with_type(request.site, include_hidden=False)
 
     return render_to_response(
         "courseware/courses.html",
